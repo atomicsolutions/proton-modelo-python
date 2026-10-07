@@ -28,5 +28,9 @@ def test_run_proton_execution(request):
 
     os.environ["idDatasetRun"] = str(id_dataset_run)
 
+    # O runner pode rodar várias execuções ao mesmo tempo, na mesma pasta do projeto: cada
+    # uma grava as evidências numa subpasta própria, senão um passo sobe o print da outra.
+    config.PASTA_DE_EVIDENCIAS = config.PASTA_DE_EVIDENCIAS / str(id_dataset_run)
+
     with sessoes.abertas():
         run_components(localizar, evidence_dir=str(config.PASTA_DE_EVIDENCIAS))
