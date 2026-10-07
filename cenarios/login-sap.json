@@ -1,0 +1,14 @@
+{
+  "descricao": "Logon no SAP (exemplo de SAP GUI). Precisa de Windows com o SAP GUI, SAP_CONEXAO, SAP_USUARIO e SAP_SENHA no .env.",
+  "requer": ["sap"],
+  "passos": [
+    {
+      "componente": "FazerLoginSap",
+      "parametros": {
+        "in_usuario": "${env:SAP_USUARIO}",
+        "in_senha": "${env:SAP_SENHA}",
+        "in_mandante": "${env:SAP_MANDANTE}"
+      }
+    }
+  ]
+}

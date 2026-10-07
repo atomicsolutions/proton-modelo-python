@@ -1,5 +1,6 @@
 {
-  "descricao": "Compra com sucesso (API e web): consulta o CEP de entrega, põe a mochila no carrinho e conclui a compra, conferindo o preço do item no total.",
+  "descricao": "Compra parcelada (API, web e desktop): a compra com sucesso e a parcela calculada na Calculadora do Windows.",
+  "requer": ["windows"],
   "passos": [
     {
       "componente": "ConsultarCep",
@@ -27,6 +28,13 @@
         "in_sobrenome": "Souza",
         "in_cep": "${out_cep}",
         "in_preco_esperado": "${out_preco}"
+      }
+    },
+    {
+      "componente": "CalcularParcela",
+      "parametros": {
+        "in_total": "${out_total}",
+        "in_parcelas": "3"
       }
     }
   ]

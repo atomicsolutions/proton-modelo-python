@@ -6,9 +6,17 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 dependencies = [
-    "playwright>=1.63.0",
     "pytest>=9.1.1",
     "python-dotenv>=1.2.4",
+    # Web
+    "playwright>=1.63.0",
+    # API
+    "requests>=2.34.2",
+    # Desktop e SAP: só no Windows. No Linux e no macOS, os cenários que precisam deles
+    # são pulados (veja "requer" nos cenários).
+    "pywinauto>=0.6.9; sys_platform == 'win32'",
+    "pillow>=12.3.0; sys_platform == 'win32'",
+    "pywin32>=312; sys_platform == 'win32'",
     # Só o tests/test_proton_script.py usa a SDK do Proton. Sem o Proton, apague esta
     # linha e aquele arquivo: o resto do projeto não muda.
     "protoncloud-sdk>=5.3.0",

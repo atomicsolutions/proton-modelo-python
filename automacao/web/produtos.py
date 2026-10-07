@@ -1,12 +1,12 @@
 from playwright.sync_api import expect
 
-from automacao.apoio import navegador
+from automacao.web import sessao
 
 
 class PaginaDeProdutos:
 
     def __init__(self):
-        self.pagina = navegador.pagina()
+        self.pagina = sessao.pagina()
 
     def conferir_que_abriu(self) -> None:
         expect(self.pagina.locator('[data-test="title"]')).to_have_text("Products")

@@ -2,8 +2,8 @@
 
 import logging
 
-from automacao.apoio import evidencias
-from automacao.paginas.login import PaginaDeLogin
+from automacao.web import sessao as web
+from automacao.web.login import PaginaDeLogin
 
 log = logging.getLogger(__name__)
 
@@ -16,5 +16,5 @@ def executar(parametros: dict) -> None:
     if parametros["in_mensagem"] not in mensagem:
         raise AssertionError(f'Mensagem "{mensagem}"; o esperado era conter "{parametros["in_mensagem"]}"')
 
-    evidencias.print_da_tela("login-recusado")
+    web.print_da_tela("login-recusado")
     log.info("Login recusado, como esperado: %s", mensagem)

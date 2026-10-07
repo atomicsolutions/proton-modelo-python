@@ -1,15 +1,16 @@
 from playwright.sync_api import expect
 
-from automacao.apoio import config, navegador
+from automacao.apoio import config
+from automacao.web import sessao
 
 
 class PaginaDeLogin:
 
     def __init__(self):
-        self.pagina = navegador.pagina()
+        self.pagina = sessao.pagina()
 
     def abrir(self) -> "PaginaDeLogin":
-        navegador.ir_para(config.URL_DA_LOJA)
+        sessao.ir_para(config.URL_DA_LOJA)
         return self
 
     def entrar(self, usuario: str, senha: str) -> None:

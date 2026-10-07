@@ -2,7 +2,7 @@
 
 import logging
 
-from automacao.paginas.produtos import PaginaDeProdutos
+from automacao.web.produtos import PaginaDeProdutos
 
 log = logging.getLogger(__name__)
 

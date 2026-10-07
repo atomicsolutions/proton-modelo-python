@@ -9,8 +9,8 @@ Sem arquivo, roda todos os cenários da pasta `cenarios/`.
 import logging
 import sys
 
-from automacao.apoio import navegador
-from automacao.apoio.cenarios import executar_cenario, listar
+from automacao.apoio import sessoes
+from automacao.apoio.cenarios import carregar, executar_cenario, listar, requisitos_que_faltam
 
 
 def main(arquivos: list[str]) -> int:
@@ -18,8 +18,14 @@ def main(arquivos: list[str]) -> int:
     falhas = 0
 
     for arquivo in arquivos or listar():
+        faltam = requisitos_que_faltam(carregar(arquivo))
+
+        if faltam:
+            logging.warning("Pulado: %s (falta %s)", arquivo, ", ".join(faltam))
+            continue
+
         try:
-            with navegador.aberto():
+            with sessoes.abertas():
                 executar_cenario(arquivo)
         except Exception:
             logging.exception("Falhou: %s", arquivo)

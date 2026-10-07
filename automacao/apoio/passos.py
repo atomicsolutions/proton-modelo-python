@@ -5,11 +5,10 @@ O nome é o mesmo no Proton e nos cenários (`FazerLogin`), e o arquivo do compo
 nome em minúsculas, com `_` entre as palavras (`automacao/componentes/fazer_login.py`).
 Cada componente tem uma função `executar(parametros) -> dict | None`.
 
-Quando o passo falha, fica um print da tela na pasta de evidências, com e sem o Proton.
+Quando o passo falha, fica a evidência de cada sessão aberta, com e sem o Proton.
 """
 
 import importlib
-import logging
 import re
 import unicodedata
 from typing import Callable
@@ -20,8 +19,6 @@ Passo = Callable[[dict], dict | None]
 
 PACOTE_DOS_COMPONENTES = "automacao.componentes"
 
-log = logging.getLogger(__name__)
-
 
 def nome_do_arquivo(componente: str) -> str:
     """`FazerLogin`, `Fazer login` e `fazer_login` viram `fazer_login`."""
@@ -31,7 +28,7 @@ def nome_do_arquivo(componente: str) -> str:
 
 
 def localizar(componente: str) -> Passo | None:
-    """O passo do componente, ou `None` se ele não existe no projeto."""
+    """O passo do componente, ou `None` se ele não é deste projeto."""
     modulo = f"{PACOTE_DOS_COMPONENTES}.{nome_do_arquivo(componente)}"
 
     try:
@@ -46,15 +43,7 @@ def localizar(componente: str) -> Passo | None:
         try:
             return implementacao.executar(parametros)
         except Exception:
-            _print_da_falha(componente)
+            evidencias.da_falha(nome_do_arquivo(componente))
             raise
 
     return passo
-
-
-def _print_da_falha(componente: str) -> None:
-    try:
-        evidencias.print_da_tela(f"falha-{nome_do_arquivo(componente)}")
-    except Exception:
-        # Sem print (navegador fechado, por exemplo), o erro do passo é o que importa.
-        log.warning("Não deu para gravar o print da falha de %s", componente)

@@ -1,12 +1,12 @@
 from playwright.sync_api import expect
 
-from automacao.apoio import navegador
+from automacao.web import sessao
 
 
 class PaginaDeCheckout:
 
     def __init__(self):
-        self.pagina = navegador.pagina()
+        self.pagina = sessao.pagina()
 
     def preencher_entrega(self, nome: str, sobrenome: str, cep: str) -> None:
         self.pagina.locator('[data-test="firstName"]').fill(nome)

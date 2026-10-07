@@ -2,27 +2,33 @@
 Roda um cenário a partir de um arquivo JSON, sem o Proton.
 
 O arquivo tem o mesmo formato de um dataset do Proton: os passos em ordem, cada um com o
-componente e os parâmetros.
+componente e os parâmetros. Os passos podem ser de plataformas diferentes (web, API, SAP,
+desktop): cada sessão abre quando o primeiro passo dela pede.
 
     {
       "descricao": "Compra com sucesso",
+      "requer": ["windows"],
       "passos": [
-        {"componente": "FazerLogin", "parametros": {"in_usuario": "standard_user"}},
-        {"componente": "AdicionarAoCarrinho", "parametros": {"in_produto": "Sauce Labs Backpack"}}
+        {"componente": "ConsultarCep", "parametros": {"in_cep": "01310-100"}},
+        {"componente": "FazerLogin", "parametros": {"in_usuario": "standard_user"}}
       ]
     }
 
 Dois tipos de referência no valor de um parâmetro:
 
-- `${out_preco}`: a saída de um passo anterior, como a referência a saída no Proton;
+- `${out_cep}`: a saída de um passo anterior, como a referência a saída no Proton;
 - `${env:SENHA_DA_LOJA}`: uma variável de ambiente ou do `.env`, para segredo não ir
   para o git (no Proton, o equivalente é o parâmetro criptografado).
+
+`requer` (opcional) lista o que o cenário precisa da máquina: `windows` (desktop) e `sap`
+(Windows com o SAP GUI e `SAP_CONEXAO`). Sem isso, o cenário é pulado, e não falha.
 """
 
 import json
 import logging
 import os
 import re
+import sys
 from pathlib import Path
 
 from automacao.apoio import config
@@ -38,9 +44,26 @@ def listar() -> list[Path]:
     return sorted(config.PASTA_DE_CENARIOS.glob("*.json"))
 
 
+def carregar(arquivo: Path | str) -> dict:
+    return json.loads(Path(arquivo).read_text(encoding="utf-8"))
+
+
+def requisitos_que_faltam(cenario: dict) -> list[str]:
+    """O que o cenário pede (`requer`) e esta máquina não tem."""
+    faltam = []
+
+    for requisito in cenario.get("requer") or []:
+        if requisito in ("windows", "sap") and sys.platform != "win32":
+            faltam.append(f"{requisito} (só roda no Windows)")
+        elif requisito == "sap" and not config.SAP_CONEXAO:
+            faltam.append("sap (defina SAP_CONEXAO no .env)")
+
+    return faltam
+
+
 def executar_cenario(arquivo: Path | str) -> dict:
     """Roda os passos do cenário e devolve as saídas de todos eles."""
-    cenario = json.loads(Path(arquivo).read_text(encoding="utf-8"))
+    cenario = carregar(arquivo)
     log.info("Cenário: %s", cenario.get("descricao") or Path(arquivo).stem)
     saidas: dict = {}
 

@@ -2,10 +2,10 @@
 
 import logging
 
-from automacao.apoio import evidencias
-from automacao.paginas.carrinho import PaginaDoCarrinho
-from automacao.paginas.checkout import PaginaDeCheckout
-from automacao.paginas.produtos import PaginaDeProdutos
+from automacao.web import sessao as web
+from automacao.web.carrinho import PaginaDoCarrinho
+from automacao.web.checkout import PaginaDeCheckout
+from automacao.web.produtos import PaginaDeProdutos
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def executar(parametros: dict) -> dict:
         raise AssertionError(f"Total dos itens {total_dos_itens}; o esperado era {esperado}")
 
     total = checkout.total()
-    evidencias.print_da_tela("resumo-da-compra")
+    web.print_da_tela("resumo-da-compra")
     checkout.concluir()
     log.info("Compra concluída: total %s", total)
 
