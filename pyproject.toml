@@ -1,0 +1,19 @@
+[project]
+name = "proton-modelo-python"
+version = "1.0.0"
+description = "Projeto modelo de automação: roda sozinho, pelo pytest, ou pelo Proton."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "playwright>=1.63.0",
+    "pytest>=9.1.1",
+    "python-dotenv>=1.2.4",
+    # Só o tests/test_proton_script.py usa a SDK do Proton. Sem o Proton, apague esta
+    # linha e aquele arquivo: o resto do projeto não muda.
+    "protoncloud-sdk>=5.3.0",
+]
+
+[tool.uv]
+# Projeto de automação, e não biblioteca: o uv só instala as dependências.
+package = false

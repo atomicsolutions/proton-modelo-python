@@ -1,0 +1,13 @@
+{
+  "descricao": "Login recusado: o usuário bloqueado (locked_out_user) não entra na loja.",
+  "passos": [
+    {
+      "componente": "ValidarLoginRecusado",
+      "parametros": {
+        "in_usuario": "locked_out_user",
+        "in_senha": "${env:SENHA_DA_LOJA}",
+        "in_mensagem": "Sorry, this user has been locked out."
+      }
+    }
+  ]
+}

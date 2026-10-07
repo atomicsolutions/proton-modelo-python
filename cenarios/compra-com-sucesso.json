@@ -1,0 +1,27 @@
+{
+  "descricao": "Compra com sucesso: login, mochila no carrinho e compra concluída, conferindo o preço do item no total.",
+  "passos": [
+    {
+      "componente": "FazerLogin",
+      "parametros": {
+        "in_usuario": "standard_user",
+        "in_senha": "${env:SENHA_DA_LOJA}"
+      }
+    },
+    {
+      "componente": "AdicionarAoCarrinho",
+      "parametros": {
+        "in_produto": "Sauce Labs Backpack"
+      }
+    },
+    {
+      "componente": "FinalizarCompra",
+      "parametros": {
+        "in_nome": "Ana",
+        "in_sobrenome": "Souza",
+        "in_cep": "01310-100",
+        "in_preco_esperado": "${out_preco}"
+      }
+    }
+  ]
+}
