@@ -12,6 +12,8 @@ dependencies = [
     "playwright>=1.63.0",
     # API
     "requests>=2.34.2",
+    # Mobile
+    "appium-python-client>=6.0.7",
     # Desktop e SAP: só no Windows. No Linux e no macOS, os cenários que precisam deles
     # são pulados (veja "requer" nos cenários).
     "pywinauto>=0.6.9; sys_platform == 'win32'",

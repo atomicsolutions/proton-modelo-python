@@ -20,14 +20,17 @@ Dois tipos de referência no valor de um parâmetro:
 - `${env:SENHA_DA_LOJA}`: uma variável de ambiente ou do `.env`, para segredo não ir
   para o git (no Proton, o equivalente é o parâmetro criptografado).
 
-`requer` (opcional) lista o que o cenário precisa da máquina: `windows` (desktop) e `sap`
-(Windows com o SAP GUI e `SAP_CONEXAO`). Sem isso, o cenário é pulado, e não falha.
+`requer` (opcional) lista o que o cenário precisa da máquina: `windows` (desktop), `sap`
+(Windows com o SAP GUI e `SAP_CONEXAO`) e `android` (adb e um aparelho conectado). Sem isso,
+o cenário é pulado, e não falha.
 """
 
 import json
 import logging
 import os
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -57,8 +60,21 @@ def requisitos_que_faltam(cenario: dict) -> list[str]:
             faltam.append(f"{requisito} (só roda no Windows)")
         elif requisito == "sap" and not config.SAP_CONEXAO:
             faltam.append("sap (defina SAP_CONEXAO no .env)")
+        elif requisito == "android" and not _aparelho_android_conectado():
+            faltam.append("android (adb e um aparelho conectado)")
 
     return faltam
+
+
+def _aparelho_android_conectado() -> bool:
+    adb = shutil.which("adb")
+
+    if adb is None:
+        return False
+
+    saida = subprocess.run([adb, "devices"], capture_output=True, text=True, timeout=30).stdout
+    aparelhos = [linha.split()[0] for linha in saida.splitlines()[1:] if linha.strip().endswith("device")]
+    return bool(aparelhos) and (config.MOBILE_DISPOSITIVO is None or config.MOBILE_DISPOSITIVO in aparelhos)
 
 
 def executar_cenario(arquivo: Path | str) -> dict:

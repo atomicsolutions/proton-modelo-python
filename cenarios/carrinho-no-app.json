@@ -1,0 +1,12 @@
+{
+  "descricao": "Carrinho no app (mobile): a mochila no carrinho do My Demo App, da Sauce Labs, num aparelho Android.",
+  "requer": ["android"],
+  "passos": [
+    {
+      "componente": "AdicionarAoCarrinhoNoApp",
+      "parametros": {
+        "in_produto": "Sauce Labs Backpack"
+      }
+    }
+  ]
+}

@@ -15,6 +15,8 @@ import os
 
 import pytest
 from proton.component_runner import run_components
+from proton.proton_automation import get_dataset_run_info
+from proton.proton_files_and_resources import download_mobile_app
 
 from automacao.apoio import config, sessoes
 from automacao.apoio.passos import localizar
@@ -31,6 +33,15 @@ def test_run_proton_execution(request):
     # O runner pode rodar várias execuções ao mesmo tempo, na mesma pasta do projeto: cada
     # uma grava as evidências numa subpasta própria, senão um passo sobe o print da outra.
     config.PASTA_DE_EVIDENCIAS = config.PASTA_DE_EVIDENCIAS / str(id_dataset_run)
+
+    # Execução mobile: o aparelho e o app escolhidos no disparo do Proton.
+    execucao = get_dataset_run_info()
+
+    if execucao.get("device"):
+        config.MOBILE_DISPOSITIVO = str(execucao["device"])
+
+    if execucao.get("app"):
+        config.MOBILE_APP = download_mobile_app(str(execucao["app"])) or config.MOBILE_APP
 
     with sessoes.abertas():
         run_components(localizar, evidence_dir=str(config.PASTA_DE_EVIDENCIAS))

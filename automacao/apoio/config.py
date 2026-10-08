@@ -26,6 +26,16 @@ TIMEOUT_MS = int(os.getenv("TIMEOUT_MS", "15000"))
 URL_DA_API_DE_CEP = os.getenv("URL_DA_API_DE_CEP", "https://viacep.com.br/ws").rstrip("/")
 TIMEOUT_DA_API_S = float(os.getenv("TIMEOUT_DA_API_S", "15"))
 
+# Mobile (Appium). Sem o Appium no ar no endereço local, a sessão o inicia sozinha.
+APPIUM_URL = os.getenv("APPIUM_URL", "http://127.0.0.1:4723").rstrip("/")
+# O serial do aparelho (adb devices); vazio usa o primeiro conectado.
+MOBILE_DISPOSITIVO = os.getenv("MOBILE_DISPOSITIVO", "").strip() or None
+# O caminho do .apk; vazio abre o app já instalado no aparelho (pacote e activity).
+MOBILE_APP = os.getenv("MOBILE_APP", "").strip() or None
+MOBILE_PACOTE = os.getenv("MOBILE_PACOTE", "com.saucelabs.mydemoapp.android")
+MOBILE_ACTIVITY = os.getenv("MOBILE_ACTIVITY", ".view.activities.SplashActivity")
+TIMEOUT_MOBILE_S = float(os.getenv("TIMEOUT_MOBILE_S", "20"))
+
 # SAP: a descrição da conexão, como aparece no SAP Logon (ex.: "QAS - Qualidade").
 SAP_CONEXAO = os.getenv("SAP_CONEXAO", "").strip()
 SAP_LOGON = os.getenv("SAP_LOGON", r"C:\Program Files\SAP\FrontEnd\SAPGUI\saplogon.exe")

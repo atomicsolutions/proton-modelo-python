@@ -1,15 +1,15 @@
 # Regras do projeto para agentes de IA
 
 Projeto de automação em Python com várias plataformas no mesmo cenário: web (Playwright),
-API (requests), SAP GUI (SAP GUI Scripting com pywin32) e desktop Windows (pywinauto). Roda
-pelo pytest, como robô (`python -m automacao`) ou pelo Proton. Responda e escreva em
-português do Brasil.
+API (requests), mobile Android (Appium), SAP GUI (SAP GUI Scripting com pywin32) e desktop
+Windows (pywinauto). Roda pelo pytest, como robô (`python -m automacao`) ou pelo Proton.
+Responda e escreva em português do Brasil.
 
 ## Onde fica cada coisa
 
 - `automacao/componentes/`: um arquivo por componente, de qualquer plataforma, com
   `executar(parametros: dict) -> dict | None`.
-- `automacao/web/`, `api/`, `sap/`, `desktop/`: uma pasta por plataforma, com a sessão
+- `automacao/web/`, `api/`, `mobile/`, `sap/`, `desktop/`: uma pasta por plataforma, com a sessão
   (`sessao.py`) e as páginas, clientes, telas e janelas. Seletores, ids de tela do SAP,
   AutomationId e endereços de API ficam só aqui.
 - `automacao/apoio/`: configuração, sessões, evidências e execução dos cenários. Mude só se a tarefa pedir.
@@ -31,7 +31,7 @@ português do Brasil.
 - Nada em `automacao/` importa o pacote `proton`. A integração com o Proton é só o
   `tests/test_proton_script.py`.
 - Log com `logging.getLogger(__name__)`, sem `print`.
-- Evidência com `print_da_tela("nome")` da sessão da plataforma (`web`, `sap`, `desktop`)
+- Evidência com `print_da_tela("nome")` da sessão da plataforma (`web`, `mobile`, `sap`, `desktop`)
   ou `api.sessao.evidencia("nome")`. A evidência da falha é automática.
 
 ## Plataforma nova

@@ -2,7 +2,8 @@
 
 Automação de exemplo com várias plataformas no mesmo cenário: consulta um CEP numa API
 pública ([ViaCEP](https://viacep.com.br)), faz uma compra na loja de testes
-[Swag Labs](https://www.saucedemo.com) e calcula a parcela na Calculadora do Windows. Traz
+[Swag Labs](https://www.saucedemo.com), põe o mesmo produto no carrinho de um app Android e
+calcula a parcela na Calculadora do Windows. Traz
 também o logon no SAP GUI, como ponto de partida para quem automatiza SAP. Serve de base
 para projetos novos de QA e de RPA.
 
@@ -10,6 +11,7 @@ para projetos novos de QA e de RPA.
 |---|---|---|
 | Web | [Playwright](https://playwright.dev/python/) | `automacao/web` |
 | API | [requests](https://requests.readthedocs.io) | `automacao/api` |
+| Mobile (Android) | [Appium](https://appium.io) (Appium-Python-Client) | `automacao/mobile` |
 | SAP GUI | SAP GUI Scripting com [pywin32](https://github.com/mhammond/pywin32) | `automacao/sap` |
 | Desktop (Windows) | [pywinauto](https://pywinauto.readthedocs.io) | `automacao/desktop` |
 
@@ -58,6 +60,7 @@ automacao/
   componentes/   um arquivo por componente, de qualquer plataforma
   web/           sessão do navegador e páginas da loja (page objects)
   api/           sessão HTTP e clientes das APIs
+  mobile/        sessão do aparelho (Appium) e telas do app
   sap/           sessão do SAP GUI e telas das transações
   desktop/       sessão dos aplicativos do Windows e janelas de cada um
   apoio/         configuração, sessões, evidências e a execução dos cenários
@@ -73,14 +76,14 @@ apague as outras pastas.
 
 ## Sessões
 
-Cada plataforma tem uma sessão: o navegador, o cliente HTTP, a conexão SAP, os aplicativos
-abertos. A sessão abre na primeira vez que um passo pede e serve aos passos seguintes do
+Cada plataforma tem uma sessão: o navegador, o cliente HTTP, o aparelho, a conexão SAP, os
+aplicativos abertos. A sessão abre na primeira vez que um passo pede e serve aos passos seguintes do
 mesmo cenário, mesmo quando eles são de outra plataforma. No fim do cenário, todas fecham,
 na ordem inversa, mesmo com erro. Um cenário só de API nem abre navegador.
 
 Os componentes não lidam com sessão: usam as páginas e telas, que pedem a sessão da
-plataforma delas (`web.sessao.pagina()`, `api.sessao.cliente()`, `sap.sessao.sessao()`,
-`desktop.sessao.janela(...)`).
+plataforma delas (`web.sessao.pagina()`, `api.sessao.cliente()`, `mobile.sessao.driver()`,
+`sap.sessao.sessao()`, `desktop.sessao.janela(...)`).
 
 Quando um passo falha, cada sessão aberta grava a evidência dela: o print da página, da
 janela do SAP ou do aplicativo, e a última resposta da API.
@@ -138,7 +141,38 @@ parâmetros, como um dataset do Proton.
 - `${out_cep}` usa a saída de um passo anterior, como a referência a saída no Proton.
 - `${env:SENHA_DA_LOJA}` lê o valor do ambiente ou do `.env`. Senha não vai para o git; no
   Proton, o equivalente é o parâmetro criptografado.
-- `requer` lista o que o cenário precisa da máquina: `windows` ou `sap`.
+- `requer` lista o que o cenário precisa da máquina: `windows`, `sap` ou `android`.
+
+## Mobile
+
+O exemplo mobile usa o [My Demo App](https://github.com/saucelabs/my-demo-app-android), o app de
+demonstração da Sauce Labs, com os mesmos produtos da loja web. Os cenários mobile pedem
+`"requer": ["android"]` e são pulados quando não há aparelho conectado.
+
+Pré-requisitos na máquina:
+
+- Android SDK, com o `adb` no `PATH`;
+- [Appium](https://appium.io) com o driver UiAutomator2: `npm install -g appium` e
+  `appium driver install uiautomator2`;
+- um aparelho Android com a depuração USB ligada (ou um emulador), visível no `adb devices`.
+
+Para rodar o exemplo, baixe o APK da [página de releases do My Demo
+App](https://github.com/saucelabs/my-demo-app-android/releases) e instale no aparelho
+(`adb install mda-*.apk`), ou aponte `MOBILE_APP` para o arquivo no `.env`. Depois:
+
+```bash
+uv run pytest -k app
+```
+
+Se o Appium não estiver no ar no endereço de `APPIUM_URL`, a automação o inicia e o encerra
+no fim do cenário. `MOBILE_DISPOSITIVO` escolhe o aparelho quando há mais de um conectado.
+
+No Proton:
+
+1. Marque a automação como mobile e cadastre o APK em **Aplicativos Mobile**.
+2. Ao disparar, escolha o aparelho (os que o runner encontra) e o app.
+3. O ponto de entrada do Proton lê da execução o aparelho e o app, baixa o app e o entrega à
+   sessão mobile. O código do componente não muda.
 
 ## Rodar pelo Proton
 
@@ -164,7 +198,8 @@ log ao vivo. No fim, grava o resultado; quando um passo falha, grava também o e
 stack trace. Um passo cujo componente fica em outro repositório volta para o runner, que
 chama o projeto daquele sistema.
 
-A máquina do runner precisa de Python e do uv. Para desktop e SAP, precisa ser Windows,
+A máquina do runner precisa de Python e do uv. Para mobile, do adb e do Appium. Para
+desktop e SAP, precisa ser Windows,
 com a sessão do usuário aberta, e, para SAP, com o SAP GUI e o scripting habilitado.
 
 ## Com IA
