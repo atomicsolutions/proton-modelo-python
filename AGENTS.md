@@ -13,7 +13,8 @@ Responda e escreva em português do Brasil.
   (`sessao.py`) e as páginas, clientes, telas e janelas. Seletores, ids de tela do SAP,
   AutomationId e endereços de API ficam só aqui.
 - `automacao/apoio/`: configuração, sessões, evidências e execução dos cenários. Mude só se a tarefa pedir.
-- `cenarios/`: cenários em JSON, no formato de um dataset do Proton.
+- `cenarios/`: cenários em JSON, no formato de um dataset do Proton. O que tem
+  `falha_esperada` falha de propósito (o `compra-com-falha-proposital`): não o conserte.
 - `tests/test_proton_script.py`: ponto de entrada do Proton. Não mude o caminho nem o nome
   do teste (`test_run_proton_execution`): o runner chama exatamente esse.
 

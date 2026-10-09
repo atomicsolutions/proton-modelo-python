@@ -476,7 +476,7 @@ requires-dist = [
     { name = "appium-python-client", specifier = ">=6.0.7" },
     { name = "pillow", marker = "sys_platform == 'win32'", specifier = ">=12.3.0" },
     { name = "playwright", specifier = ">=1.63.0" },
-    { name = "protoncloud-sdk", specifier = ">=5.3.1" },
+    { name = "protoncloud-sdk", specifier = ">=5.3.2" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=312" },
@@ -486,14 +486,14 @@ requires-dist = [
 
 [[package]]
 name = "protoncloud-sdk"
-version = "5.3.1"
+version = "5.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/3f/7811a000a27098e693cef30890bd4a9123c0cb9382b3b0f773b8d9255067/protoncloud_sdk-5.3.1.tar.gz", hash = "sha256:5cdebe2f9f8c66ae7cbf21410f05ce96cc5bec79689a3f98e6fdc5db3f120e81", size = 33785, upload_time = "2026-10-07T13:01:17.554Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/01/3f4b899af227e5c9ecb32eda6629bfffb7e53f6ff35931cfae5e26fe15bc/protoncloud_sdk-5.3.2.tar.gz", hash = "sha256:1d8eed70bcd15546289725c4671e145f5ae6fc148a8ab29a45d3a234dc0b6c3d", size = 35009, upload_time = "2026-10-09T11:55:47.697Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2e/6b/c2c4294ecc5325ba09ce6a6bd03aaf724df810f52ec05b5b65e753f9f986/protoncloud_sdk-5.3.1-py3-none-any.whl", hash = "sha256:a0a87d7c495a79f0a44ca5154219fb560d8bb18d5c5047b6cacc98d132989397", size = 28111, upload_time = "2026-10-07T13:01:16.333Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/d8/d328b25ef7df7e1940a9a81071c619b160d0a6fa9c59ce49252ee68fd42e/protoncloud_sdk-5.3.2-py3-none-any.whl", hash = "sha256:5c5f1b8474fb30c0484b2dc1357474d0cf9548258fb75f712df40e049907c1a5", size = 28617, upload_time = "2026-10-09T11:55:46.373Z" },
 ]
 
 [[package]]

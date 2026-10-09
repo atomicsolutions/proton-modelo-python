@@ -1,0 +1,27 @@
+{
+  "descricao": "Falha proposital: o problem_user da loja tem um defeito conhecido no checkout (o sobrenome vai para o campo do nome), e a compra para em \"Last Name is required\". Serve para ver uma execução com falha: o log, o print da tela e o erro do passo.",
+  "falha_esperada": "Last Name is required",
+  "passos": [
+    {
+      "componente": "FazerLogin",
+      "parametros": {
+        "in_usuario": "problem_user",
+        "in_senha": "${env:SENHA_DA_LOJA}"
+      }
+    },
+    {
+      "componente": "AdicionarAoCarrinho",
+      "parametros": {
+        "in_produto": "Sauce Labs Backpack"
+      }
+    },
+    {
+      "componente": "FinalizarCompra",
+      "parametros": {
+        "in_nome": "Ana",
+        "in_sobrenome": "Souza",
+        "in_cep": "01310-100"
+      }
+    }
+  ]
+}

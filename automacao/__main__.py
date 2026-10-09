@@ -10,7 +10,7 @@ import logging
 import sys
 
 from automacao.apoio import sessoes
-from automacao.apoio.cenarios import carregar, executar_cenario, listar, requisitos_que_faltam
+from automacao.apoio.cenarios import carregar, conferir_falha_esperada, executar_cenario, listar, requisitos_que_faltam
 
 
 def main(arquivos: list[str]) -> int:
@@ -18,18 +18,30 @@ def main(arquivos: list[str]) -> int:
     falhas = 0
 
     for arquivo in arquivos or listar():
-        faltam = requisitos_que_faltam(carregar(arquivo))
+        cenario = carregar(arquivo)
+        faltam = requisitos_que_faltam(cenario)
 
         if faltam:
             logging.warning("Pulado: %s (falta %s)", arquivo, ", ".join(faltam))
             continue
 
+        erro = None
+
         try:
             with sessoes.abertas():
                 executar_cenario(arquivo)
+        except Exception as falha:
+            erro = falha
+
+        try:
+            falha_esperada = conferir_falha_esperada(cenario, erro)
         except Exception:
             logging.exception("Falhou: %s", arquivo)
             falhas += 1
+            continue
+
+        if falha_esperada:
+            logging.warning("Falhou como esperado: %s (%s)", arquivo, falha_esperada)
 
     return 1 if falhas else 0
 

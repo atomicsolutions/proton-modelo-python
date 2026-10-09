@@ -23,6 +23,10 @@ Dois tipos de referência no valor de um parâmetro:
 `requer` (opcional) lista o que o cenário precisa da máquina: `windows` (desktop), `sap`
 (Windows com o SAP GUI e `SAP_CONEXAO`) e `android` (adb e um aparelho conectado). Sem isso,
 o cenário é pulado, e não falha.
+
+`falha_esperada` (opcional) marca o cenário que falha de propósito, com um trecho da
+mensagem do erro. Fora do Proton ele conta como falha esperada; no Proton, o mesmo dataset
+termina em Failed, com o log, o print e o erro do passo.
 """
 
 import json
@@ -64,6 +68,27 @@ def requisitos_que_faltam(cenario: dict) -> list[str]:
             faltam.append("android (adb e um aparelho conectado)")
 
     return faltam
+
+
+def conferir_falha_esperada(cenario: dict, erro: Exception | None) -> str | None:
+    """
+    Confere o resultado do cenário com a `falha_esperada` dele. Devolve a mensagem da falha
+    quando ela veio como esperado; sem `falha_esperada`, devolve `None` (ou relança o erro).
+    """
+    esperada = cenario.get("falha_esperada")
+
+    if not esperada:
+        if erro is not None:
+            raise erro
+        return None
+
+    if erro is None:
+        raise AssertionError(f'O cenário devia falhar com "{esperada}", mas passou.')
+
+    if esperada not in str(erro):
+        raise erro
+
+    return str(erro)
 
 
 def _aparelho_android_conectado() -> bool:
