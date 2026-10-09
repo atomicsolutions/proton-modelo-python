@@ -20,7 +20,8 @@
       "parametros": {
         "in_nome": "Ana",
         "in_sobrenome": "Souza",
-        "in_cep": "01310-100"
+        "in_cep": "01310-100",
+        "in_preco_esperado": "${out_preco}"
       }
     }
   ]
