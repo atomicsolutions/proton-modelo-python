@@ -21,7 +21,7 @@ dependencies = [
     "pywin32>=312; sys_platform == 'win32'",
     # Só o tests/test_proton_script.py usa a SDK do Proton. Sem o Proton, apague esta
     # linha e aquele arquivo: o resto do projeto não muda.
-    "protoncloud-sdk>=5.3.2",
+    "protoncloud-sdk>=5.3.3",
 ]
 
 [tool.uv]
