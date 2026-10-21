@@ -4,14 +4,16 @@ cenário. Usa o pywinauto com o UI Automation do Windows: age pelos identificado
 acessibilidade (AutomationId), sem depender da posição na tela.
 
 Os passos pedem a janela com `janela(apelido, comando, titulo)`: a primeira chamada abre o
-aplicativo, as seguintes reaproveitam a mesma janela. Só roda no Windows, com a sessão do
-usuário aberta (o runner precisa de área de trabalho).
+aplicativo, as seguintes reaproveitam a mesma janela. O aplicativo que não abre é falha de
+ambiente (`FalhaDeAmbiente`). Só roda no Windows, com a sessão do usuário aberta (o runner
+precisa de área de trabalho).
 """
 
 import logging
 from pathlib import Path
 
 from automacao.apoio import evidencias, sessoes
+from automacao.apoio.falhas import FalhaDeAmbiente
 
 log = logging.getLogger(__name__)
 
@@ -32,9 +34,14 @@ class SessaoDesktop:
     def janela(self, apelido: str, comando: str, titulo: str):
         if apelido not in self.janelas:
             log.info("Abrindo %s", apelido)
-            self._application(backend="uia").start(comando)
-            janela = self._desktop(backend="uia").window(title_re=titulo, control_type="Window", found_index=0)
-            janela.wait("exists visible ready", timeout=TEMPO_PARA_ABRIR_S)
+
+            try:
+                self._application(backend="uia").start(comando)
+                janela = self._desktop(backend="uia").window(title_re=titulo, control_type="Window", found_index=0)
+                janela.wait("exists visible ready", timeout=TEMPO_PARA_ABRIR_S)
+            except Exception as erro:
+                raise FalhaDeAmbiente(f"{apelido} não abriu ({comando}): {sessoes.primeira_linha(erro)}") from erro
+
             self.janelas[apelido] = janela
 
         return self.janelas[apelido]

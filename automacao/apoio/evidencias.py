@@ -1,8 +1,10 @@
 """
 Evidências: prints e arquivos gravados na pasta de evidências (`PASTA_DE_EVIDENCIAS`).
 
-Fora do Proton, ficam na pasta. Numa execução do Proton, o que aparece na pasta durante
-um passo sobe para aquele passo. A automação não precisa saber onde está rodando.
+Fora do Proton, ficam na pasta. Numa execução do Proton, a pasta é a da execução
+(`evidencias/<id da execução>`, que o ponto de entrada do Proton pede à SDK), e o que
+aparece nela durante um passo sobe para aquele passo; o que aparece ao fechar as sessões
+sobe para a execução. A automação não precisa saber onde está rodando.
 
 Cada plataforma grava a evidência dela (`web.print_da_tela`, `sap.print_da_tela`,
 `desktop.print_da_tela`, `api.evidencia`). Quando um passo falha, `da_falha` pede a

@@ -1,5 +1,6 @@
 from playwright.sync_api import expect
 
+from automacao.apoio.falhas import FalhaDeNegocio
 from automacao.web import sessao
 
 
@@ -16,13 +17,16 @@ class PaginaDeCheckout:
         self._conferir_que_avancou()
 
     def _conferir_que_avancou(self) -> None:
-        """Quando recusa os dados de entrega, a loja mostra o erro na mesma página."""
+        """
+        Quando recusa os dados de entrega, a loja mostra o erro na mesma página. A recusa é
+        regra da loja, e repetir dá o mesmo resultado: falha de negócio, e não do robô.
+        """
         resumo = self.pagina.locator('[data-test="subtotal-label"]')
         erro = self.pagina.locator('[data-test="error"]')
         resumo.or_(erro).first.wait_for()
 
         if erro.is_visible():
-            raise AssertionError(f"A loja recusou os dados de entrega: {erro.inner_text()}")
+            raise FalhaDeNegocio(f"A loja recusou os dados de entrega: {erro.inner_text()}")
 
     def total_dos_itens(self) -> str:
         """`Item total: $29.99` vira `29.99`."""

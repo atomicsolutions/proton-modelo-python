@@ -9,19 +9,20 @@ dependencies = [
     "pytest>=9.1.1",
     "python-dotenv>=1.2.4",
     # Web
-    "playwright>=1.63.0",
+    "playwright>=1.64.0",
     # API
     "requests>=2.34.2",
     # Mobile
-    "appium-python-client>=6.0.7",
+    "appium-python-client>=6.0.8",
     # Desktop e SAP: só no Windows. No Linux e no macOS, os cenários que precisam deles
     # são pulados (veja "requer" nos cenários).
     "pywinauto>=0.6.9; sys_platform == 'win32'",
+    # A 13 do pillow pede Python 3.11: no 3.10, o lock fica na 12.3.
     "pillow>=12.3.0; sys_platform == 'win32'",
     "pywin32>=312; sys_platform == 'win32'",
     # Só o tests/test_proton_script.py usa a SDK do Proton. Sem o Proton, apague esta
     # linha e aquele arquivo: o resto do projeto não muda.
-    "protoncloud-sdk>=5.3.3",
+    "protoncloud-sdk>=5.5.0",
 ]
 
 [tool.uv]

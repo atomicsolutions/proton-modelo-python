@@ -12,7 +12,7 @@ Responda e escreva em português do Brasil.
 - `automacao/web/`, `api/`, `mobile/`, `sap/`, `desktop/`: uma pasta por plataforma, com a sessão
   (`sessao.py`) e as páginas, clientes, telas e janelas. Seletores, ids de tela do SAP,
   AutomationId e endereços de API ficam só aqui.
-- `automacao/apoio/`: configuração, sessões, evidências e execução dos cenários. Mude só se a tarefa pedir.
+- `automacao/apoio/`: configuração, sessões, evidências, falhas e execução dos cenários. Mude só se a tarefa pedir.
 - `cenarios/`: cenários em JSON, no formato de um dataset do Proton. O que tem
   `falha_esperada` falha de propósito (o `compra-com-falha-proposital`): não o conserte.
 - `tests/test_proton_script.py`: ponto de entrada do Proton. Não mude o caminho nem o nome
@@ -26,14 +26,21 @@ Responda e escreva em português do Brasil.
 - Todo valor de parâmetro e de saída é texto (`str`).
 - Para falhar, lance uma exceção com uma mensagem que diga o que se esperava e o que veio.
   Nunca só registre o erro no log e siga: o passo precisa falhar.
+- O motivo da falha vem da exceção (`automacao/apoio/falhas.py`): `FalhaDeNegocio` quando
+  a regra de negócio recusa (a loja recusou os dados, o SAP diz que o material não existe);
+  `FalhaDeAmbiente`, com o erro original como causa (`raise ... from erro`), quando o
+  ambiente não deixa rodar. A sessão que não abre já vira `FalhaDeAmbiente` sozinha.
+  Qualquer outra exceção é falha técnica: não embrulhe erro do robô como negócio.
 - Dados passam de um passo para outro só pelas saídas e entradas, nunca por variável global.
 - O componente não abre nem fecha sessão: usa as páginas, telas e clientes, que pedem a
-  sessão da plataforma deles. As sessões abrem na primeira vez e fecham no fim do cenário.
+  sessão da plataforma deles. As sessões abrem na primeira vez e fecham no fim do cenário
+  (no Proton, a SDK as fecha antes de gravar o status).
 - Nada em `automacao/` importa o pacote `proton`. A integração com o Proton é só o
   `tests/test_proton_script.py`.
 - Log com `logging.getLogger(__name__)`, sem `print`.
 - Evidência com `print_da_tela("nome")` da sessão da plataforma (`web`, `mobile`, `sap`, `desktop`)
-  ou `api.sessao.evidencia("nome")`. A evidência da falha é automática.
+  ou `api.sessao.evidencia("nome")`. A evidência da falha é automática. Tudo vai para a pasta
+  de evidências; no Proton, ela é `evidencias/<id da execução>`, e a SDK sobe o que aparece.
 
 ## Plataforma nova
 
@@ -50,6 +57,17 @@ o cenário precisar de algo da máquina, declare em `"requer"`.
 4. Se houver conector MCP do Proton, cadastre ou atualize o componente no sistema da
    plataforma dele (ligado a este repositório), com o mesmo nome e os mesmos parâmetros,
    e documente objetivo e resultado esperado.
+
+## Com o conector MCP do Proton
+
+- `get_project_template`: de onde vem este modelo (repositório, branch, SDK mínima) e as
+  regras do contrato. Comece por ele num projeto novo.
+- `generate_component_code`: o arquivo de um componente já cadastrado no Proton, no formato
+  daqui. Grave no caminho que ele devolve e escreva a lógica no lugar do TODO.
+- `check_project`: depois de cada push, confere o repositório contra o cadastro (um arquivo
+  por componente, parâmetros `in_` e `out_`, ponto de entrada, SDK). Corrija todo erro.
+- `check_automation`: antes da primeira execução, confere os datasets (parâmetros com
+  valor, referências, criptografados, runner no ar).
 
 ## Segredos
 

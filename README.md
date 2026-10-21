@@ -51,7 +51,8 @@ Os cenários dizem o que precisam da máquina (`"requer"`) e são pulados quando
 o `compra-parcelada` abre a Calculadora e só roda no Windows; o `login-sap` precisa do SAP
 GUI e de `SAP_CONEXAO`, `SAP_USUARIO` e `SAP_SENHA` no `.env`.
 
-As evidências (prints e respostas de API) ficam na pasta `evidencias/`.
+As evidências (prints e respostas de API) ficam na pasta `evidencias/`. Numa execução do
+Proton, cada execução grava em `evidencias/<id da execução>`.
 
 ## Estrutura
 
@@ -63,7 +64,7 @@ automacao/
   mobile/        sessão do aparelho (Appium) e telas do app
   sap/           sessão do SAP GUI e telas das transações
   desktop/       sessão dos aplicativos do Windows e janelas de cada um
-  apoio/         configuração, sessões, evidências e a execução dos cenários
+  apoio/         configuração, sessões, evidências, falhas e a execução dos cenários
 cenarios/        os cenários em JSON, no mesmo formato de um dataset do Proton
 tests/
   test_cenarios.py       roda os cenários, sem o Proton
@@ -79,7 +80,13 @@ apague as outras pastas.
 Cada plataforma tem uma sessão: o navegador, o cliente HTTP, o aparelho, a conexão SAP, os
 aplicativos abertos. A sessão abre na primeira vez que um passo pede e serve aos passos seguintes do
 mesmo cenário, mesmo quando eles são de outra plataforma. No fim do cenário, todas fecham,
-na ordem inversa, mesmo com erro. Um cenário só de API nem abre navegador.
+na ordem inversa, mesmo com erro. Um cenário só de API nem abre navegador. No Proton, quem
+fecha é a SDK, antes de gravar o resultado: o que sai do fechamento (um vídeo, o último
+print) ainda sobe para a execução.
+
+A sessão que não abre (o navegador, o aparelho, o SAP, o aplicativo) e a API que não
+responde depois das novas tentativas são falha de ambiente: veja [Motivo da
+falha](#motivo-da-falha).
 
 Os componentes não lidam com sessão: usam as páginas e telas, que pedem a sessão da
 plataforma delas (`web.sessao.pagina()`, `api.sessao.cliente()`, `mobile.sessao.driver()`,
@@ -115,9 +122,33 @@ As regras:
 
 - os parâmetros chegam num `dict`, com o prefixo `in_`;
 - as saídas voltam num `dict`, com o prefixo `out_` (ou `None`, sem saída);
-- para falhar, lance uma exceção. A evidência da falha é automática;
+- para falhar, lance uma exceção. A evidência da falha é automática. Quando a regra de
+  negócio recusa, lance `FalhaDeNegocio` (veja [Motivo da falha](#motivo-da-falha));
 - seletores, ids de tela e chamadas ficam nas páginas, telas e clientes, não no componente;
 - nada em `automacao/` importa o Proton.
+
+## Motivo da falha
+
+O Proton separa três motivos de falha. A execução termina em **Failed** nos três, e o motivo
+aparece à parte, para separar o que é do robô do que não é:
+
+| Motivo | Quando | No código |
+|---|---|---|
+| Negócio | A regra não deixou seguir, e repetir dá o mesmo resultado: a loja recusou os dados, o material não existe no SAP. | `FalhaDeNegocio` |
+| Ambiente | O ambiente não deixou rodar: a sessão que não abre, a API fora do ar. | `FalhaDeAmbiente`, com o erro original como causa |
+| Técnica | Qualquer outro erro: o elemento que não apareceu, o valor que não bateu, o erro do código. | qualquer outra exceção |
+
+```python
+from automacao.apoio.falhas import FalhaDeNegocio
+
+if saldo < valor:
+    raise FalhaDeNegocio(f"Saldo {saldo} menor que o valor {valor}")
+```
+
+As duas classes ficam em `automacao/apoio/falhas.py` e não importam o Proton: a SDK lê o
+motivo pelo atributo `failure_reason`, na exceção e nas causas dela (`raise ... from erro`).
+A sessão que não abre já vira `FalhaDeAmbiente` sozinha. Fora do Proton, são exceções
+comuns.
 
 ## Cenários
 
@@ -148,8 +179,8 @@ O `compra-com-falha-proposital` falha de propósito: o usuário `problem_user` d
 defeito conhecido no checkout (o sobrenome vai para o campo do nome) e a compra para em
 "Error: Last Name is required". Fora do Proton ele conta como falha esperada (`xfail` no
 pytest), e a suíte segue verde. No Proton, o mesmo dataset termina em **Failed**, com o
-log, o print da tela e o erro do passo: serve para conhecer uma execução que falhou e o
-diagnóstico da falha.
+log, o print da tela, o erro do passo e o motivo **negócio** (a recusa da loja é
+`FalhaDeNegocio`): serve para conhecer uma execução que falhou e o diagnóstico da falha.
 
 ## Mobile
 
@@ -202,9 +233,11 @@ A [Proton Cloud SDK](https://pypi.org/project/protoncloud-sdk/) roda os passos e
 no mesmo processo, enquanto este projeto tiver o componente: as sessões abertas valem para
 a execução inteira, de uma plataforma para a outra. A cada passo, marca início e fim,
 passa ao componente só os parâmetros dele, grava as saídas, sobe as evidências e manda o
-log ao vivo. No fim, grava o resultado; quando um passo falha, grava também o erro com o
-stack trace. Um passo cujo componente fica em outro repositório volta para o runner, que
-chama o projeto daquele sistema.
+log ao vivo. Cada execução grava as evidências em `evidencias/<id da execução>`, e a SDK
+sobe só as dela, mesmo com outras rodando ao mesmo tempo na mesma pasta. No fim, a SDK
+fecha as sessões, sobe o que saiu do fechamento e grava o resultado; quando um passo falha,
+grava também o erro com o stack trace e o motivo da falha. Um passo cujo componente fica em
+outro repositório volta para o runner, que chama o projeto daquele sistema.
 
 A máquina do runner precisa de Python e do uv. Para mobile, do adb e do Appium. Para
 desktop e SAP, precisa ser Windows,
@@ -214,7 +247,12 @@ com a sessão do usuário aberta, e, para SAP, com o SAP GUI e o scripting habil
 
 O `AGENTS.md` traz as regras do projeto para agentes de IA (Claude Code, Codex, Cursor e
 outros). Com o conector MCP do Proton, o agente cadastra no Proton os componentes que
-criar aqui.
+criar aqui, e o caminho é este:
+
+1. `get_project_template`: de onde vem este modelo e as regras do contrato.
+2. `generate_component_code`: o arquivo de um componente já cadastrado, no formato daqui.
+3. `check_project`, depois de cada push: confere o repositório contra o cadastro.
+4. `check_automation`, antes da primeira execução: confere os datasets.
 
 ## Licença
 

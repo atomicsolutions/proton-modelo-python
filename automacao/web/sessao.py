@@ -25,7 +25,14 @@ class SessaoWeb:
 
     def __init__(self):
         self._playwright = sync_playwright().start()
-        self._navegador = self._lancar()
+
+        try:
+            self._navegador = self._lancar()
+        except Exception:
+            # Sem parar a Playwright, o próximo cenário não conseguiria abrir outro navegador.
+            self._playwright.stop()
+            raise
+
         self._contexto = self._navegador.new_context(viewport={"width": 1366, "height": 768})
         self.pagina = self._contexto.new_page()
         self.pagina.set_default_timeout(config.TIMEOUT_MS)
