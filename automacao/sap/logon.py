@@ -14,7 +14,7 @@ class TelaDeLogon:
         self.sessao.findById("wnd[0]/usr/txtRSYST-BNAME").Text = usuario
         self.sessao.findById("wnd[0]/usr/pwdRSYST-BCODE").Text = senha
         self.sessao.findById("wnd[0]/usr/txtRSYST-LANGU").Text = idioma
-        self.sessao.findById("wnd[0]").sendVKey(0)
+        self.sessao.findById("wnd[0]").sendVKey(sessao.ENTER)
 
         if sessao.existe("wnd[1]/usr/txtMULTI_LOGON_TEXT"):
             raise AssertionError(f"O usuário {usuario} já tem sessão aberta no SAP (logon múltiplo).")
@@ -25,5 +25,7 @@ class TelaDeLogon:
 
         tipo, texto = sessao.barra_de_status()
 
-        if tipo in ("E", "A"):
+        # Usuário ou senha errados não são regra de negócio: aqui não vale o conferir_sem_erro(),
+        # e o logon recusado fica como falha técnica.
+        if tipo in (sessao.TipoDeMensagem.ERRO, sessao.TipoDeMensagem.ABORTO):
             raise AssertionError(f"Logon recusado pelo SAP: {texto}")

@@ -68,6 +68,7 @@ automacao/
 cenarios/        os cenários em JSON, no mesmo formato de um dataset do Proton
 tests/
   test_cenarios.py       roda os cenários, sem o Proton
+  test_sap.py            as ajudas do SAP, com objetos falsos (roda sem SAP)
   test_proton_script.py  o ponto de entrada do Proton (o único que importa a SDK)
 ```
 
@@ -212,6 +213,34 @@ No Proton:
 2. Ao disparar, escolha o aparelho (os que o runner encontra) e o app.
 3. O ponto de entrada do Proton lê da execução o aparelho e o app, baixa o app e o entrega à
    sessão mobile. O código do componente não muda.
+
+## SAP
+
+O componente SAP usa as ajudas de `automacao/sap/sessao.py`, em vez de repetir o SAP GUI
+Scripting em cada tela:
+
+| Ajuda | O que faz |
+|---|---|
+| `barra_de_status()` | O tipo (`TipoDeMensagem`: sucesso, aviso, erro, aborto, informação) e o texto da barra de status. |
+| `confirmar_avisos()` | Aperta Enter enquanto a barra mostra aviso, até um número máximo de vezes. |
+| `conferir_sem_erro()` | Lança `FalhaDeNegocio` com o texto da barra quando ela mostra erro (E ou A). |
+| `ler_celula`, `escrever_celula` | A célula de uma tabela (GuiTableControl), pelo título da coluna. |
+| `primeira_linha_vazia` | A primeira linha visível com a coluna vazia, onde entra o próximo item. |
+| `existe`, `id_pelo_texto`, `id_da_aba` | Se o elemento está na tela; o id pelo texto visível; o id da aba pelo nome. |
+| `subtela` | O nome da subtela que começa com um prefixo, porque o número do fim muda conforme a tela. |
+| `tabela_da_tela()` | Os textos de uma tela de relatório (lista), linha a linha. |
+| `print_da_tela(nome)` | O print da janela ativa, na pasta de evidências. |
+
+```python
+from automacao.sap import sessao as sap
+
+sap.sessao().findById("wnd[0]/tbar[0]/btn[11]").press()  # Gravar
+sap.confirmar_avisos()
+sap.conferir_sem_erro()  # "Material não existe" vira falha de negócio
+```
+
+O modelo não mata o `saplogon.exe`: o runner pode rodar várias execuções ao mesmo tempo na
+mesma máquina, e isso derrubaria o SAP de todas. A sessão fecha só a conexão dela.
 
 ## Rodar pelo Proton
 

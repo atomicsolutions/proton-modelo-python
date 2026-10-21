@@ -17,6 +17,7 @@ Responda e escreva em português do Brasil.
   `falha_esperada` falha de propósito (o `compra-com-falha-proposital`): não o conserte.
 - `tests/test_proton_script.py`: ponto de entrada do Proton. Não mude o caminho nem o nome
   do teste (`test_run_proton_execution`): o runner chama exatamente esse.
+- `tests/test_sap.py`: as ajudas do SAP com objetos falsos, sem SAP na máquina.
 
 ## Contrato do componente
 
@@ -41,6 +42,24 @@ Responda e escreva em português do Brasil.
 - Evidência com `print_da_tela("nome")` da sessão da plataforma (`web`, `mobile`, `sap`, `desktop`)
   ou `api.sessao.evidencia("nome")`. A evidência da falha é automática. Tudo vai para a pasta
   de evidências; no Proton, ela é `evidencias/<id da execução>`, e a SDK sobe o que aparece.
+
+## SAP
+
+O componente SAP usa as ajudas de `automacao/sap/sessao.py`, em vez de repetir o SAP GUI Scripting:
+
+- barra de status: `barra_de_status()` (com o tipo em `TipoDeMensagem`), `confirmar_avisos()`
+  e `conferir_sem_erro()`. Depois de gravar ou de avançar, chame `conferir_sem_erro()`: o
+  erro na barra (E ou A) vira `FalhaDeNegocio`, com o texto do SAP;
+- tabela (GuiTableControl), pelo título da coluna: `ler_celula`, `escrever_celula` e
+  `primeira_linha_vazia`;
+- elementos: `existe`, `id_pelo_texto`, `id_da_aba` e `subtela` (o número da subtela muda
+  conforme a tela);
+- tela de relatório (lista): `tabela_da_tela()`;
+- evidência: `print_da_tela("nome")`.
+
+Capture o erro do COM (`pywintypes.com_error`), nunca com `except:` nu. Não mate o
+`saplogon.exe` (`taskkill`): o runner pode rodar várias execuções ao mesmo tempo na mesma
+máquina, e isso derruba o SAP de todas. A sessão fecha só a conexão dela.
 
 ## Plataforma nova
 
