@@ -10,8 +10,8 @@ para projetos novos de QA e de RPA.
 Duas demonstrações de RPA completam o modelo: o **cadastro em lote pela planilha** (baixa
 o Excel do [RPA Challenge](https://rpachallenge.com) e preenche cada linha num formulário
 que muda os campos de lugar a cada envio) e o **contrato em dólar** (converte o valor
-pela cotação oficial no [Conversor de Moedas do Banco Central](https://www.bcb.gov.br/conversao)
-e calcula a parcela na Calculadora do Windows).
+pela cotação oficial no [Conversor de Moedas do Banco Central](https://www.bcb.gov.br/conversao)).
+As duas são só web: rodam em qualquer runner, em paralelo.
 
 | Plataforma | Biblioteca | Pasta |
 |---|---|---|
@@ -55,7 +55,8 @@ uv run python -m automacao cenarios/compra-parcelada.json
 ```
 
 Os cenários dizem o que precisam da máquina (`"requer"`) e são pulados quando ela não tem:
-o `compra-parcelada` abre a Calculadora e só roda no Windows; o `login-sap` precisa do SAP
+o `compra-parcelada` abre a Calculadora e só roda no Windows (com execuções em paralelo, cada
+uma espera a vez dela na Calculadora, que tem uma janela só por máquina); o `login-sap` precisa do SAP
 GUI e de `SAP_CONEXAO`, `SAP_USUARIO` e `SAP_SENHA` no `.env`.
 
 As evidências (prints e respostas de API) ficam na pasta `evidencias/`. Numa execução do
@@ -198,11 +199,9 @@ As duas demonstrações de RPA:
   texto curto, e a planilha pode ter milhares de linhas); `PreencherCadastros` lê a planilha e
   preenche cada linha no formulário, achando os campos pelo rótulo, e confere os 100% de acerto.
   `in_pausa_ms` espera entre um cadastro e outro, para uma apresentação.
-- `contrato-em-dolar` (Windows): `ConverterMoeda` converte `in_valor` em `in_moeda` para reais
-  pela cotação do dia útil e confere a conta (valor vezes cotação) antes de devolver;
-  `CalcularParcela` divide o resultado em parcelas na Calculadora. A Calculadora do Windows tem
-  uma janela só por máquina: com execuções em paralelo, a sessão desktop dá a vez a uma de cada
-  vez, e as outras esperam (até 5 minutos).
+- `contrato-em-dolar`: `ConverterMoeda` converte `in_valor` em `in_moeda` para reais pela
+  cotação do dia útil e confere a conta (valor vezes cotação) antes de devolver o valor em
+  reais, a cotação e a data dela.
 
 ## Mobile
 

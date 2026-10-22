@@ -1,19 +1,11 @@
 {
-  "descricao": "Contrato em dólar (web e desktop): converte o valor do contrato para reais pela cotação do Banco Central e calcula a parcela na Calculadora do Windows.",
-  "requer": ["windows"],
+  "descricao": "Contrato em dólar (web): converte o valor do contrato para reais pela cotação oficial do Conversor de Moedas do Banco Central.",
   "passos": [
     {
       "componente": "ConverterMoeda",
       "parametros": {
         "in_valor": "25000.00",
         "in_moeda": "USD"
-      }
-    },
-    {
-      "componente": "CalcularParcela",
-      "parametros": {
-        "in_total": "${out_valor_em_reais}",
-        "in_parcelas": "6"
       }
     }
   ]
