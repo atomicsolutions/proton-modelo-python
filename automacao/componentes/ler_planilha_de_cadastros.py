@@ -1,6 +1,10 @@
-"""LerPlanilhaDeCadastros: baixa a planilha de cadastros do RPA Challenge e lê as linhas dela."""
+"""
+LerPlanilhaDeCadastros: baixa a planilha de cadastros do RPA Challenge e confere as colunas.
 
-import json
+Devolve o caminho da planilha, e não as linhas: a saída de um passo no Proton é um texto
+curto, e uma planilha de verdade tem milhares de linhas. O passo seguinte lê o arquivo.
+"""
+
 import logging
 
 from automacao.apoio import evidencias
@@ -24,4 +28,4 @@ def executar(parametros: dict) -> dict:
         raise AssertionError(f"A planilha não tem as colunas {', '.join(faltam)}")
 
     log.info("Planilha com %d cadastros (o primeiro: %s %s)", len(cadastros), cadastros[0]["First Name"], cadastros[0]["Last Name"])
-    return {"out_cadastros": json.dumps(cadastros, ensure_ascii=False), "out_quantidade": str(len(cadastros))}
+    return {"out_planilha": str(planilha), "out_quantidade": str(len(cadastros))}

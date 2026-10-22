@@ -36,6 +36,8 @@ Responda e escreva em português do Brasil.
   ambiente não deixa rodar. A sessão que não abre já vira `FalhaDeAmbiente` sozinha.
   Qualquer outra exceção é falha técnica: não embrulhe erro do robô como negócio.
 - Dados passam de um passo para outro só pelas saídas e entradas, nunca por variável global.
+- A saída é um texto curto (o Proton corta perto de 2 mil caracteres). Lista grande, como as
+  linhas de uma planilha, vai num arquivo da pasta de evidências, e a saída leva o caminho.
 - O componente não abre nem fecha sessão: usa as páginas, telas e clientes, que pedem a
   sessão da plataforma deles. As sessões abrem na primeira vez e fecham no fim do cenário
   (no Proton, a SDK as fecha antes de gravar o status).

@@ -194,12 +194,15 @@ log, o print da tela, o erro do passo e o motivo **negócio** (a recusa da loja 
 As duas demonstrações de RPA:
 
 - `cadastro-em-lote-pela-planilha`: `LerPlanilhaDeCadastros` baixa a planilha (que vira
-  evidência do passo) e devolve as linhas em `out_cadastros`; `PreencherCadastros` preenche
-  cada uma no formulário, achando os campos pelo rótulo, e confere os 100% de acerto.
+  evidência do passo) e devolve o caminho dela em `out_planilha` (a saída de um passo é um
+  texto curto, e a planilha pode ter milhares de linhas); `PreencherCadastros` lê a planilha e
+  preenche cada linha no formulário, achando os campos pelo rótulo, e confere os 100% de acerto.
   `in_pausa_ms` espera entre um cadastro e outro, para uma apresentação.
 - `contrato-em-dolar` (Windows): `ConverterMoeda` converte `in_valor` em `in_moeda` para reais
   pela cotação do dia útil e confere a conta (valor vezes cotação) antes de devolver;
-  `CalcularParcela` divide o resultado em parcelas na Calculadora.
+  `CalcularParcela` divide o resultado em parcelas na Calculadora. A Calculadora do Windows tem
+  uma janela só por máquina: com execuções em paralelo, a sessão desktop dá a vez a uma de cada
+  vez, e as outras esperam (até 5 minutos).
 
 ## Mobile
 

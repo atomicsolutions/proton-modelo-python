@@ -1,13 +1,15 @@
 """
-PreencherCadastros: preenche no formulário do RPA Challenge cada cadastro da planilha.
+PreencherCadastros: preenche no formulário do RPA Challenge cada cadastro da planilha
+(`in_planilha`, o caminho que o LerPlanilhaDeCadastros devolve).
 
 `in_pausa_ms` (opcional) espera entre um cadastro e outro, para quem assiste acompanhar.
 """
 
-import json
 import logging
 import re
+from pathlib import Path
 
+from automacao.arquivos.excel import ler_registros
 from automacao.web import sessao as web
 from automacao.web.rpa_challenge import PaginaDoDesafio
 
@@ -15,7 +17,10 @@ log = logging.getLogger(__name__)
 
 
 def executar(parametros: dict) -> dict:
-    cadastros = json.loads(parametros["in_cadastros"])
+    planilha = Path(parametros["in_planilha"])
+    if not planilha.is_file():
+        raise FileNotFoundError(f"A planilha de cadastros não está em {planilha}")
+    cadastros = ler_registros(planilha)
     pausa_ms = int(parametros.get("in_pausa_ms") or 0)
     desafio = PaginaDoDesafio().garantir_aberta()
     desafio.comecar()

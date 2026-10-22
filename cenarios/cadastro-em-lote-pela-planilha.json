@@ -8,7 +8,7 @@
     {
       "componente": "PreencherCadastros",
       "parametros": {
-        "in_cadastros": "${out_cadastros}",
+        "in_planilha": "${out_planilha}",
         "in_pausa_ms": "0"
       }
     }
