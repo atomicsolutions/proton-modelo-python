@@ -12,6 +12,8 @@ dependencies = [
     "playwright>=1.64.0",
     # API
     "requests>=2.34.2",
+    # Excel (.xlsx), sem o Excel instalado
+    "openpyxl>=3.1.5",
     # Mobile
     "appium-python-client>=6.0.8",
     # Desktop e SAP: só no Windows. No Linux e no macOS, os cenários que precisam deles

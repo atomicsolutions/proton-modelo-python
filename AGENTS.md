@@ -12,6 +12,9 @@ Responda e escreva em português do Brasil.
 - `automacao/web/`, `api/`, `mobile/`, `sap/`, `desktop/`: uma pasta por plataforma, com a sessão
   (`sessao.py`) e as páginas, clientes, telas e janelas. Seletores, ids de tela do SAP,
   AutomationId e endereços de API ficam só aqui.
+- `automacao/arquivos/`: leitura de arquivos sem sessão (planilha do Excel com a openpyxl,
+  `excel.ler_registros`). O arquivo que o passo usa ou gera vai para a pasta de evidências
+  (`evidencias.arquivo` e `evidencias.registrar`), para aparecer no passo do Proton.
 - `automacao/apoio/`: configuração, sessões, evidências, falhas e execução dos cenários. Mude só se a tarefa pedir.
 - `cenarios/`: cenários em JSON, no formato de um dataset do Proton. O que tem
   `falha_esperada` falha de propósito (o `compra-com-falha-proposital`): não o conserte.

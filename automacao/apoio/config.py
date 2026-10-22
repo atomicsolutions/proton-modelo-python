@@ -22,6 +22,11 @@ HEADLESS = os.getenv("HEADLESS", "true").strip().lower() != "false"
 CANAL_DO_NAVEGADOR = os.getenv("CANAL_DO_NAVEGADOR", "").strip() or None
 TIMEOUT_MS = int(os.getenv("TIMEOUT_MS", "15000"))
 
+# Demonstrações em sites públicos: o cadastro em lote a partir da planilha (RPA Challenge)
+# e o conversor de moedas do Banco Central.
+URL_DO_DESAFIO_RPA = os.getenv("URL_DO_DESAFIO_RPA", "https://rpachallenge.com")
+URL_DO_CONVERSOR_DE_MOEDAS = os.getenv("URL_DO_CONVERSOR_DE_MOEDAS", "https://www.bcb.gov.br/conversao")
+
 # API
 URL_DA_API_DE_CEP = os.getenv("URL_DA_API_DE_CEP", "https://viacep.com.br/ws").rstrip("/")
 TIMEOUT_DA_API_S = float(os.getenv("TIMEOUT_DA_API_S", "15"))

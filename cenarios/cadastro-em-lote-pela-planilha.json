@@ -1,0 +1,16 @@
+{
+  "descricao": "Cadastro em lote pela planilha (Excel e web): baixa a planilha de cadastros do RPA Challenge e preenche cada linha no formulário, que muda a posição dos campos a cada envio.",
+  "passos": [
+    {
+      "componente": "LerPlanilhaDeCadastros",
+      "parametros": {}
+    },
+    {
+      "componente": "PreencherCadastros",
+      "parametros": {
+        "in_cadastros": "${out_cadastros}",
+        "in_pausa_ms": "0"
+      }
+    }
+  ]
+}

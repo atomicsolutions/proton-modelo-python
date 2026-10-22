@@ -16,10 +16,12 @@ não muda.
 """
 
 import os
+import sys
 
 import pytest
 from proton.component_runner import run_components, run_evidence_dir
 from proton.proton_automation import get_dataset_run_info
+from proton.proton_environment import ProtonEnvironmentError, get_environment_variables
 from proton.proton_files_and_resources import download_mobile_app
 from proton.run_status import FailureReason, failure_reason
 
@@ -41,6 +43,10 @@ def test_run_proton_execution(request):
     # uma grava em evidencias/<id da execução>, e a SDK sobe para ela só o que é dela.
     config.PASTA_DE_EVIDENCIAS = config.RAIZ_DO_PROJETO / run_evidence_dir()
 
+    # O navegador na tela do runner: HEADLESS=false no ambiente da execução (Configurações >
+    # Ambientes, no Proton) vale como no .env, que o runner não tem.
+    _navegador_pelo_ambiente()
+
     # Execução mobile: o aparelho e o app escolhidos no disparo do Proton.
     execucao = get_dataset_run_info()
 
@@ -52,6 +58,18 @@ def test_run_proton_execution(request):
 
     # As sessões abrem quando um passo pede, e a SDK as fecha antes do status.
     run_components(localizar, close_at_end=[sessoes.fechar_todas])
+
+
+def _navegador_pelo_ambiente() -> None:
+    try:
+        ambiente = get_environment_variables()
+    except ProtonEnvironmentError:
+        return  # sem ambiente legível, vale a configuração do projeto
+
+    if "HEADLESS" in ambiente:
+        config.HEADLESS = ambiente["HEADLESS"].strip().lower() != "false"
+    if ambiente.get("CANAL_DO_NAVEGADOR", "").strip():
+        config.CANAL_DO_NAVEGADOR = ambiente["CANAL_DO_NAVEGADOR"].strip()
 
 
 # O motivo que o Proton grava para as falhas do projeto. Rodam fora do Proton, com o pytest.
@@ -74,3 +92,27 @@ def test_sessao_que_nao_abre_e_falha_de_ambiente():
 
     assert isinstance(falha.value.__cause__, ConnectionRefusedError)
     assert failure_reason(falha.value) is FailureReason.ENVIRONMENT
+
+
+def test_navegador_na_tela_pelo_ambiente_do_proton(monkeypatch):
+    monkeypatch.setattr(config, "HEADLESS", True)
+    monkeypatch.setattr(config, "CANAL_DO_NAVEGADOR", None)
+    monkeypatch.setattr(sys.modules[__name__], "get_environment_variables",
+                        lambda: {"HEADLESS": "false", "CANAL_DO_NAVEGADOR": "msedge"})
+
+    _navegador_pelo_ambiente()
+
+    assert config.HEADLESS is False
+    assert config.CANAL_DO_NAVEGADOR == "msedge"
+
+
+def test_sem_ambiente_legivel_vale_a_configuracao_do_projeto(monkeypatch):
+    def sem_ambiente():
+        raise ProtonEnvironmentError("sem ambiente", "httpError")
+
+    monkeypatch.setattr(config, "HEADLESS", True)
+    monkeypatch.setattr(sys.modules[__name__], "get_environment_variables", sem_ambiente)
+
+    _navegador_pelo_ambiente()
+
+    assert config.HEADLESS is True

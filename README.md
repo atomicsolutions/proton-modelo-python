@@ -7,6 +7,12 @@ calcula a parcela na Calculadora do Windows. Traz
 também o logon no SAP GUI, como ponto de partida para quem automatiza SAP. Serve de base
 para projetos novos de QA e de RPA.
 
+Duas demonstrações de RPA completam o modelo: o **cadastro em lote pela planilha** (baixa
+o Excel do [RPA Challenge](https://rpachallenge.com) e preenche cada linha num formulário
+que muda os campos de lugar a cada envio) e o **contrato em dólar** (converte o valor
+pela cotação oficial no [Conversor de Moedas do Banco Central](https://www.bcb.gov.br/conversao)
+e calcula a parcela na Calculadora do Windows).
+
 | Plataforma | Biblioteca | Pasta |
 |---|---|---|
 | Web | [Playwright](https://playwright.dev/python/) | `automacao/web` |
@@ -14,6 +20,7 @@ para projetos novos de QA e de RPA.
 | Mobile (Android) | [Appium](https://appium.io) (Appium-Python-Client) | `automacao/mobile` |
 | SAP GUI | SAP GUI Scripting com [pywin32](https://github.com/mhammond/pywin32) | `automacao/sap` |
 | Desktop (Windows) | [pywinauto](https://pywinauto.readthedocs.io) | `automacao/desktop` |
+| Excel (.xlsx) | [openpyxl](https://openpyxl.readthedocs.io), sem o Excel instalado | `automacao/arquivos` |
 
 O mesmo código roda de três jeitos:
 
@@ -59,11 +66,12 @@ Proton, cada execução grava em `evidencias/<id da execução>`.
 ```
 automacao/
   componentes/   um arquivo por componente, de qualquer plataforma
-  web/           sessão do navegador e páginas da loja (page objects)
+  web/           sessão do navegador e páginas (page objects) da loja, do RPA Challenge e do Banco Central
   api/           sessão HTTP e clientes das APIs
   mobile/        sessão do aparelho (Appium) e telas do app
   sap/           sessão do SAP GUI e telas das transações
   desktop/       sessão dos aplicativos do Windows e janelas de cada um
+  arquivos/      leitura de planilhas do Excel, sem sessão
   apoio/         configuração, sessões, evidências, falhas e a execução dos cenários
 cenarios/        os cenários em JSON, no mesmo formato de um dataset do Proton
 tests/
@@ -183,6 +191,16 @@ pytest), e a suíte segue verde. No Proton, o mesmo dataset termina em **Failed*
 log, o print da tela, o erro do passo e o motivo **negócio** (a recusa da loja é
 `FalhaDeNegocio`): serve para conhecer uma execução que falhou e o diagnóstico da falha.
 
+As duas demonstrações de RPA:
+
+- `cadastro-em-lote-pela-planilha`: `LerPlanilhaDeCadastros` baixa a planilha (que vira
+  evidência do passo) e devolve as linhas em `out_cadastros`; `PreencherCadastros` preenche
+  cada uma no formulário, achando os campos pelo rótulo, e confere os 100% de acerto.
+  `in_pausa_ms` espera entre um cadastro e outro, para uma apresentação.
+- `contrato-em-dolar` (Windows): `ConverterMoeda` converte `in_valor` em `in_moeda` para reais
+  pela cotação do dia útil e confere a conta (valor vezes cotação) antes de devolver;
+  `CalcularParcela` divide o resultado em parcelas na Calculadora.
+
 ## Mobile
 
 O exemplo mobile usa o [My Demo App](https://github.com/saucelabs/my-demo-app-android), o app de
@@ -257,6 +275,10 @@ mesma máquina, e isso derrubaria o SAP de todas. A sessão fecha só a conexão
    `uv run pytest tests/test_proton_script.py::test_run_proton_execution --id_dataset_run=<id>`
    e entrega no ambiente o endereço do Proton e um token que vale só para aquela
    execução. O projeto não guarda token nem endereço do Proton.
+5. **Navegador na tela.** O runner não tem o `.env`, então o navegador abre oculto. Para
+   ver a automação trabalhando (numa apresentação, por exemplo), cadastre no Proton um
+   ambiente com a variável `HEADLESS` igual a `false` e use-o no dataset ou no disparo.
+   `CANAL_DO_NAVEGADOR` (`chrome` ou `msedge`) também vale pelo ambiente.
 
 A [Proton Cloud SDK](https://pypi.org/project/protoncloud-sdk/) roda os passos em ordem,
 no mesmo processo, enquanto este projeto tiver o componente: as sessões abertas valem para
