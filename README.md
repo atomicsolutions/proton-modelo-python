@@ -229,10 +229,20 @@ no fim do cenário. `MOBILE_DISPOSITIVO` escolhe o aparelho quando há mais de u
 
 No Proton:
 
-1. Marque a automação como mobile e cadastre o APK em **Aplicativos Mobile**.
-2. Ao disparar, escolha o aparelho (os que o runner encontra) e o app.
-3. O ponto de entrada do Proton lê da execução o aparelho e o app, baixa o app e o entrega à
-   sessão mobile. O código do componente não muda.
+1. Cadastre o app como um sistema de plataforma **Mobile** e o APK em **Aplicativos Mobile**,
+   ligado a esse sistema. A automação não tem mais a marcação mobile: o que ela pede no
+   disparo sai dos sistemas dos componentes.
+2. Ao disparar, escolha o aparelho (os que o runner encontra) e o app de cada sistema mobile,
+   ou deixe o aparelho padrão do sistema.
+3. Antes de cada passo, o ponto de entrada do Proton pede à SDK o aparelho e o app do sistema
+   do passo (`get_current_component_device()`), baixa o app e os entrega à sessão mobile. O código do componente não
+   muda.
+
+Uma execução pode ter mais de um sistema mobile (o app do cliente e o app do entregador, por
+exemplo), cada um com o seu aparelho. A sessão mobile é uma por sistema (`mobile:<id do
+sistema>`): o passo de um app usa o aparelho dele, e o passo seguinte do outro app abre o
+outro aparelho. Cada aparelho local tem o seu `systemPort` no UiAutomator2, para os dois não
+disputarem a mesma porta. Com um sistema mobile só, nada muda.
 
 ## SAP
 
