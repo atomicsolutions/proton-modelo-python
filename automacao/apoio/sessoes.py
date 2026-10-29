@@ -43,19 +43,25 @@ S = TypeVar("S", bound=Sessao)
 _abertas: dict[str, Sessao] = {}
 
 
-def obter(plataforma: str, abrir: Callable[[], S]) -> S:
-    """A sessão da plataforma: abre na primeira vez, reaproveita nas seguintes."""
-    if plataforma not in _abertas:
-        log.info("Abrindo a sessão %s", plataforma)
+def obter(chave: str, abrir: Callable[[], S]) -> S:
+    """
+    A sessão da chave: abre na primeira vez, reaproveita nas seguintes.
+
+    A chave é a plataforma (`web`, `api`, `sap`) ou, quando uma plataforma pode ter mais de
+    uma sessão no mesmo cenário, a plataforma e o sistema: `mobile:12` e `mobile:15` são dois
+    aparelhos, um para cada app.
+    """
+    if chave not in _abertas:
+        log.info("Abrindo a sessão %s", chave)
 
         try:
-            _abertas[plataforma] = abrir()
+            _abertas[chave] = abrir()
         except FalhaDeAmbiente:
             raise
         except Exception as erro:
-            raise FalhaDeAmbiente(f"A sessão {plataforma} não abriu: {primeira_linha(erro)}") from erro
+            raise FalhaDeAmbiente(f"A sessão {chave} não abriu: {primeira_linha(erro)}") from erro
 
-    return _abertas[plataforma]
+    return _abertas[chave]
 
 
 def todas() -> dict[str, Sessao]:
@@ -65,11 +71,11 @@ def todas() -> dict[str, Sessao]:
 
 def fechar_todas() -> None:
     """Fecha as sessões abertas, na ordem inversa. Uma que não fecha não impede as outras."""
-    for plataforma, sessao in reversed(list(_abertas.items())):
+    for chave, sessao in reversed(list(_abertas.items())):
         try:
             sessao.fechar()
         except Exception:
-            log.warning("Não deu para fechar a sessão %s", plataforma, exc_info=True)
+            log.warning("Não deu para fechar a sessão %s", chave, exc_info=True)
 
     _abertas.clear()
 
