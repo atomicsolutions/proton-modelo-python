@@ -6,25 +6,26 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 dependencies = [
-    "pytest>=9.1.1",
+    "pytest>=9.2.0",
     "python-dotenv>=1.2.4",
     # Web
-    "playwright>=1.64.0",
+    "playwright>=1.64.1",
     # API
     "requests>=2.34.2",
     # Excel (.xlsx), sem o Excel instalado
     "openpyxl>=3.1.5",
     # Mobile
-    "appium-python-client>=6.0.8",
+    "appium-python-client>=6.1.4",
     # Desktop e SAP: só no Windows. No Linux e no macOS, os cenários que precisam deles
     # são pulados (veja "requer" nos cenários).
     "pywinauto>=0.6.9; sys_platform == 'win32'",
     # A 13 do pillow pede Python 3.11: no 3.10, o lock fica na 12.3.
     "pillow>=12.3.0; sys_platform == 'win32'",
     "pywin32>=312; sys_platform == 'win32'",
-    # Só o tests/test_proton_script.py usa a SDK do Proton. Sem o Proton, apague esta
-    # linha e aquele arquivo: o resto do projeto não muda.
-    "protoncloud-sdk>=5.6.0",
+    # A SDK do Proton: o tests/test_proton_script.py e a tabela de dados (o componente
+    # AdicionarProdutosDaTabela). Sem o Proton, apague esta linha, aquele arquivo e o
+    # componente com o cenário dele: o resto do projeto não muda.
+    "protoncloud-sdk>=5.7.0",
 ]
 
 [tool.uv]

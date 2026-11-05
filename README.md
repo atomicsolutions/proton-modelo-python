@@ -30,8 +30,9 @@ O mesmo código roda de três jeitos:
   de um dataset e guarda log, evidências, saídas e resultado de cada execução.
 
 O Proton é opcional. Só um arquivo do projeto conhece o Proton:
-`tests/test_proton_script.py`. Apague esse arquivo e a dependência `protoncloud-sdk`, e o
-resto continua igual. A automação é sua, com ou sem a ferramenta.
+`tests/test_proton_script.py` (e o exemplo da [tabela de dados](#tabela-de-dados), que é um
+recurso do Proton). Apague esse arquivo, o exemplo da tabela e a dependência
+`protoncloud-sdk`, e o resto continua igual. A automação é sua, com ou sem a ferramenta.
 
 ## Rodar localmente
 
@@ -75,6 +76,7 @@ automacao/
   arquivos/      leitura de planilhas do Excel, sem sessão
   apoio/         configuração, sessões, evidências, falhas e a execução dos cenários
 cenarios/        os cenários em JSON, no mesmo formato de um dataset do Proton
+  tabelas/       as tabelas de dados dos cenários, em .csv e .xlsx
 tests/
   test_cenarios.py       roda os cenários, sem o Proton
   test_sap.py            as ajudas do SAP, com objetos falsos (roda sem SAP)
@@ -183,6 +185,8 @@ parâmetros, como um dataset do Proton.
 - `${env:SENHA_DA_LOJA}` lê o valor do ambiente ou do `.env`. Senha não vai para o git; no
   Proton, o equivalente é o parâmetro criptografado.
 - `requer` lista o que o cenário precisa da máquina: `windows`, `sap` ou `android`.
+- `tabela` aponta a tabela de dados do cenário, um .csv ou .xlsx da pasta `cenarios/tabelas/`
+  (veja [Tabela de dados](#tabela-de-dados)).
 - `falha_esperada` marca o cenário que falha de propósito, com um trecho da mensagem do erro.
 
 O `compra-com-falha-proposital` falha de propósito: o usuário `problem_user` da loja tem um
@@ -202,6 +206,68 @@ As duas demonstrações de RPA:
 - `contrato-em-dolar`: `ConverterMoeda` converte `in_valor` em `in_moeda` para reais pela
   cotação do dia útil e confere a conta (valor vezes cotação) antes de devolver o valor em
   reais, a cotação e a data dela.
+
+## Tabela de dados
+
+No Proton, o dataset pode ter uma **tabela de dados** com abas, editável como planilha na
+tela do dataset (colar do Excel, importar e exportar .xlsx e .csv). Cada execução recebe uma
+cópia: o script lê e grava só nela, e o dataset muda apenas quando alguém leva os valores
+de volta pela tela da execução. Vem da Proton Cloud SDK 5.7.0, em `proton.proton_table`.
+
+O exemplo é o cenário `compra-em-massa-pela-tabela`: o `AdicionarProdutosDaTabela` percorre
+a aba `produtos`, põe cada produto no carrinho e grava na mesma linha o status, o preço e a
+mensagem. Cria a coluna `processado_em`, inclui uma linha de total e devolve o total dos
+itens, que o `FinalizarCompra` confere no checkout. A Caneca do Proton não existe na loja:
+a linha dela fica com erro, e as outras seguem.
+
+```python
+from proton.proton_table import ProtonTableError, get_proton_table
+
+produtos = get_proton_table("produtos")      # sem nome: a primeira aba
+produtos.add_column("processado_em")         # coluna nova, só nesta execução
+
+for linha in produtos:                       # cada linha lê como um dict; valor é texto
+    try:
+        preco = PaginaDeProdutos().adicionar_ao_carrinho(linha["produto"])
+        produtos.set(linha, "status", "no carrinho")   # linha a linha: grava na hora
+        produtos.set(linha, "preco", preco)
+    except ProtonTableError:
+        raise                                # coluna errada, execução terminada: para
+    except Exception as erro:
+        produtos.set(linha, "status", "erro")
+        produtos.set(linha, "mensagem", str(erro))
+
+produtos.add_rows([{"produto": "Total", "preco": "47.97"}])   # em lote: uma chamada só
+```
+
+| Função | O que faz |
+|---|---|
+| `get_proton_table(nome)` / `get_proton_tables()` | Uma aba (sem nome, a primeira) / todas, por nome. |
+| `aba.set(linha, coluna, valor)` | Grava uma célula na hora; `linha` é a linha ou o id dela. |
+| `aba.add_row(valores)` / `aba.add_rows(lista)` | Inclui linhas no fim, numa chamada. |
+| `aba.add_column(nome)` / `aba.add_columns(nomes)` | Cria colunas no fim, só nesta execução. |
+| `aba.column(nome)`, `aba.to_json()` | Os valores de uma coluna; a aba inteira em JSON. |
+| `aba.download("xlsx")` | Baixa a aba como está na execução (só no Proton). |
+| `create_proton_table(nome, colunas)` | Cria uma aba só nesta execução. |
+
+Escrita que falha levanta `ProtonTableError`, com o motivo em `reason` (`columnNotFound`,
+`runAlreadyFinished`...). Limites: 20 abas, 100 colunas, 10 mil linhas por aba.
+
+**Fora do Proton**, a tabela vem de um arquivo, e as escritas ficam só na memória. O
+cenário aponta o dele (`"tabela": "tabelas/produtos.csv"`), e a variável `PROTON_TABLE_FILE`
+vale mais, para testar com outro arquivo, como um exportado pela tela do dataset:
+
+```bash
+uv run pytest -k compra-em-massa
+PROTON_TABLE_FILE=cenarios/tabelas/produtos.xlsx uv run pytest -k compra-em-massa
+```
+
+Para conferir o que foi gravado, a aba inteira vai em JSON para a pasta de evidências.
+
+No Proton, crie no dataset a aba `produtos` com as colunas `produto`, `status`, `preco` e
+`mensagem` (ou importe `cenarios/tabelas/produtos.xlsx`) e os passos `FazerLogin`,
+`AdicionarProdutosDaTabela` e `FinalizarCompra`, com `in_preco_esperado` na saída
+`out_total_dos_itens`. O resultado aparece na tabela da execução, na tela dela.
 
 ## Mobile
 
