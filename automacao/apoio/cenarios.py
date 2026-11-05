@@ -24,6 +24,9 @@ Dois tipos de referência no valor de um parâmetro:
 (Windows com o SAP GUI e `SAP_CONEXAO`) e `android` (adb e um aparelho conectado). Sem isso,
 o cenário é pulado, e não falha.
 
+`tabela` (opcional) é o arquivo da tabela de dados do cenário (`tabelas/produtos.csv`), no
+lugar da tabela que o dataset tem no Proton.
+
 `falha_esperada` (opcional) marca o cenário que falha de propósito, com um trecho da
 mensagem do erro. Fora do Proton ele conta como falha esperada; no Proton, o mesmo dataset
 termina em Failed, com o log, o print e o erro do passo.
@@ -36,6 +39,7 @@ import re
 import shutil
 import subprocess
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 from automacao.apoio import config
@@ -108,18 +112,39 @@ def executar_cenario(arquivo: Path | str) -> dict:
     log.info("Cenário: %s", cenario.get("descricao") or Path(arquivo).stem)
     saidas: dict = {}
 
-    for numero, passo in enumerate(cenario["passos"], start=1):
-        componente = passo["componente"]
-        executar = localizar(componente)
+    with _tabela_de_dados(cenario):
+        for numero, passo in enumerate(cenario["passos"], start=1):
+            componente = passo["componente"]
+            executar = localizar(componente)
 
-        if executar is None:
-            raise LookupError(f'O componente "{componente}" não existe em automacao/componentes.')
+            if executar is None:
+                raise LookupError(f'O componente "{componente}" não existe em automacao/componentes.')
 
-        parametros = {nome: _resolver(valor, saidas) for nome, valor in (passo.get("parametros") or {}).items()}
-        log.info("Passo %d: %s", numero, componente)
-        saidas.update(executar(parametros) or {})
+            parametros = {nome: _resolver(valor, saidas) for nome, valor in (passo.get("parametros") or {}).items()}
+            log.info("Passo %d: %s", numero, componente)
+            saidas.update(executar(parametros) or {})
 
     return saidas
+
+
+@contextmanager
+def _tabela_de_dados(cenario: dict):
+    """
+    A tabela de dados do cenário (`"tabela"`, um .csv ou .xlsx relativo à pasta `cenarios/`),
+    como o dataset do Proton tem a dele: fora do Proton, a SDK lê a tabela do arquivo de
+    `PROTON_TABLE_FILE`, e as escritas ficam só na memória. Um `PROTON_TABLE_FILE` já
+    definido no ambiente vale mais que o do cenário.
+    """
+    if not cenario.get("tabela") or os.getenv("PROTON_TABLE_FILE"):
+        yield
+        return
+
+    os.environ["PROTON_TABLE_FILE"] = str(config.PASTA_DE_CENARIOS / cenario["tabela"])
+
+    try:
+        yield
+    finally:
+        os.environ.pop("PROTON_TABLE_FILE", None)
 
 
 def _resolver(valor, saidas: dict) -> str:
