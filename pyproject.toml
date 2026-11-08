@@ -25,7 +25,7 @@ dependencies = [
     # A SDK do Proton: o tests/test_proton_script.py e a tabela de dados (o componente
     # AdicionarProdutosDaTabela). Sem o Proton, apague esta linha, aquele arquivo e o
     # componente com o cenário dele: o resto do projeto não muda.
-    "protoncloud-sdk>=5.7.2",
+    "protoncloud-sdk>=5.7.3",
 ]
 
 [tool.uv]
