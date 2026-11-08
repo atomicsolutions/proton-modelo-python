@@ -545,7 +545,7 @@ requires-dist = [
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pillow", marker = "sys_platform == 'win32'", specifier = ">=12.3.0" },
     { name = "playwright", specifier = ">=1.64.1" },
-    { name = "protoncloud-sdk", specifier = ">=5.7.0" },
+    { name = "protoncloud-sdk", specifier = ">=5.7.2" },
     { name = "pytest", specifier = ">=9.2.0" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=312" },
@@ -555,14 +555,14 @@ requires-dist = [
 
 [[package]]
 name = "protoncloud-sdk"
-version = "5.7.0"
+version = "5.7.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/27/6f/cdd514fba9885d544d897c9bdab38581231d96903e8ff4c3f625ced096dc/protoncloud_sdk-5.7.0.tar.gz", hash = "sha256:fa6996db3f8ac61bb33a68e49920ede698a962534225a345ece43f2e75e604b6", size = 61377, upload_time = "2026-10-31T19:36:10.449Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e1/b1/1e184cdc18d3d11e68cd19e78fbfe71a3b79184246b3767ec3487baa98ca/protoncloud_sdk-5.7.2.tar.gz", hash = "sha256:3b3a7054b327363c211e430923c8a8d2af2bdd7390c09b4ddf2e9c7b5f73ec08", size = 63394, upload_time = "2026-11-08T13:05:57.844Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c2/07/7de55f9cf23c07a3f24428af6cd9b0c31f76e61b01899e7d9e25e2340133/protoncloud_sdk-5.7.0-py3-none-any.whl", hash = "sha256:d36ed2eda7504757e349b8cae05e57993cb36dfafabe7ce3aa17bfea77e6f066", size = 46142, upload_time = "2026-10-31T19:36:08.903Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/51/a792a4a884209c18d7475263a630420d8298466cf3ae89161e41a7d7a3c3/protoncloud_sdk-5.7.2-py3-none-any.whl", hash = "sha256:bf3b97f11f53b494ea411f8b2c225ace86fafa50bf32441f53c3388c46607af7", size = 47089, upload_time = "2026-11-08T13:05:55.874Z" },
 ]
 
 [[package]]
