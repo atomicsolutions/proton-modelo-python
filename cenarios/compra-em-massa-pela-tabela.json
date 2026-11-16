@@ -1,0 +1,28 @@
+{
+  "descricao": "Compra em massa pela tabela de dados (web): põe no carrinho cada produto da aba produtos, grava em cada linha o status, o preço e a mensagem, e conclui a compra conferindo o total dos itens. A Caneca do Proton não existe na loja: a linha dela fica com erro, e as outras seguem.",
+  "tabela": "tabelas/produtos.csv",
+  "passos": [
+    {
+      "componente": "FazerLogin",
+      "parametros": {
+        "in_usuario": "standard_user",
+        "in_senha": "${env:SENHA_DA_LOJA}"
+      }
+    },
+    {
+      "componente": "AdicionarProdutosDaTabela",
+      "parametros": {
+        "in_aba": "produtos"
+      }
+    },
+    {
+      "componente": "FinalizarCompra",
+      "parametros": {
+        "in_nome": "Ana",
+        "in_sobrenome": "Souza",
+        "in_cep": "01310-100",
+        "in_preco_esperado": "${out_total_dos_itens}"
+      }
+    }
+  ]
+}

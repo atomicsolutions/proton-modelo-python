@@ -11,6 +11,11 @@ class PaginaDeProdutos:
     def conferir_que_abriu(self) -> None:
         expect(self.pagina.locator('[data-test="title"]')).to_have_text("Products")
 
+    def tem_produto(self, produto: str) -> bool:
+        """Se a loja vende o produto, sem esperar: a lista de produtos já está na tela."""
+        self.conferir_que_abriu()
+        return self.pagina.locator('[data-test="inventory-item"]').filter(has_text=produto).count() == 1
+
     def adicionar_ao_carrinho(self, produto: str) -> str:
         """Adiciona o produto e devolve o preço dele, sem o símbolo da moeda."""
         item = self.pagina.locator('[data-test="inventory-item"]').filter(has_text=produto)

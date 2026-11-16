@@ -41,12 +41,30 @@ Responda e escreva em português do Brasil.
 - O componente não abre nem fecha sessão: usa as páginas, telas e clientes, que pedem a
   sessão da plataforma deles. As sessões abrem na primeira vez e fecham no fim do cenário
   (no Proton, a SDK as fecha antes de gravar o status).
-- Nada em `automacao/` importa o pacote `proton`. A integração com o Proton é só o
+- Nada em `automacao/` importa o pacote `proton`, com uma exceção: o componente que usa a
+  tabela de dados importa `proton.proton_table`. O resto da integração com o Proton é só o
   `tests/test_proton_script.py`.
 - Log com `logging.getLogger(__name__)`, sem `print`.
 - Evidência com `print_da_tela("nome")` da sessão da plataforma (`web`, `mobile`, `sap`, `desktop`)
   ou `api.sessao.evidencia("nome")`. A evidência da falha é automática. Tudo vai para a pasta
   de evidências; no Proton, ela é `evidencias/<id da execução>`, e a SDK sobe o que aparece.
+
+## Tabela de dados
+
+O dataset pode ter uma tabela com abas (SDK 5.7.0 em diante). Cada execução recebe uma
+cópia, e o script lê e grava só nela. O exemplo é o `AdicionarProdutosDaTabela`, no
+cenário `compra-em-massa-pela-tabela`.
+
+- Leitura: `get_proton_table("produtos")` (sem nome, a primeira aba) ou `get_proton_tables()`.
+  Cada linha lê como um `dict`, e os valores são sempre texto.
+- Escrita linha a linha: `aba.set(linha, "status", "ok")`, que grava na hora. Em lote:
+  `aba.add_rows([...])` e `aba.add_columns([...])`, numa chamada só. Aba nova só na
+  execução: `create_proton_table(nome, colunas)`.
+- Erro de uma linha (o produto que não existe) marca a linha e segue para a próxima.
+  `ProtonTableError` (coluna errada, execução terminada) relança: não adianta seguir.
+- A aba inteira vai como evidência (`aba.to_json()`), não como saída: a saída é texto curto.
+- Fora do Proton, o `"tabela"` do cenário (`cenarios/tabelas/produtos.csv`) ou a variável
+  `PROTON_TABLE_FILE` apontam o .csv ou .xlsx, e as escritas ficam só na memória.
 
 ## SAP
 
